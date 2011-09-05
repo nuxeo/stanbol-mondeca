@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="http://www.mondeca.com/cas" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://www.mondeca.com/cas" xmlns:intf="http://www.mondeca.com/cas" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns1="urn:com.mondeca.ca" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<!--WSDL created by Apache Axis version: 1.4
+Built on Apr 22, 2006 (06:55:48 PDT)-->
+ <wsdl:types>
+  <schema targetNamespace="urn:com.mondeca.ca" xmlns="http://www.w3.org/2001/XMLSchema">
+   <import namespace="http://xml.apache.org/xml-soap"/>
+   <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+   <complexType name="Knowledge">
+    <sequence>
+     <element name="string" nillable="true" type="soapenc:string"/>
+    </sequence>
+   </complexType>
+   <complexType name="Metadata">
+    <sequence>
+     <element name="string" nillable="true" type="soapenc:string"/>
+    </sequence>
+   </complexType>
+   <complexType name="Occurrences">
+    <sequence>
+     <element name="string" nillable="true" type="soapenc:string"/>
+    </sequence>
+   </complexType>
+   <complexType name="Indexation">
+    <sequence>
+     <element name="invalidKnowledge" nillable="true" type="tns1:Knowledge"/>
+     <element name="invalidMetadata" nillable="true" type="tns1:Metadata"/>
+     <element name="invalidOccurrences" nillable="true" type="tns1:Occurrences"/>
+     <element name="message" nillable="true" type="soapenc:string"/>
+     <element name="validKnowledge" nillable="true" type="tns1:Knowledge"/>
+     <element name="validMetadata" nillable="true" type="tns1:Metadata"/>
+     <element name="validOccurrences" nillable="true" type="tns1:Occurrences"/>
+    </sequence>
+   </complexType>
+  </schema>
+  <schema targetNamespace="http://xml.apache.org/xml-soap" xmlns="http://www.w3.org/2001/XMLSchema">
+   <import namespace="urn:com.mondeca.ca"/>
+   <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+   <complexType name="mapItem">
+    <sequence>
+     <element name="key" nillable="true" type="xsd:anyType"/>
+     <element name="value" nillable="true" type="xsd:anyType"/>
+    </sequence>
+   </complexType>
+   <complexType name="Map">
+    <sequence>
+     <element maxOccurs="unbounded" minOccurs="0" name="item" type="apachesoap:mapItem"/>
+    </sequence>
+   </complexType>
+  </schema>
+ </wsdl:types>
+
+   <wsdl:message name="closeSessionRequest">
+
+   </wsdl:message>
+
+   <wsdl:message name="processRequest">
+
+      <wsdl:part name="content" type="soapenc:string"/>
+
+      <wsdl:part name="reference" type="soapenc:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="processResponse1">
+
+      <wsdl:part name="processReturn" type="tns1:Indexation"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="setParameterResponse">
+
+   </wsdl:message>
+
+   <wsdl:message name="openSessionResponse">
+
+   </wsdl:message>
+
+   <wsdl:message name="listProcessesResponse">
+
+      <wsdl:part name="listProcessesReturn" type="apachesoap:Map"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="pingResponse">
+
+      <wsdl:part name="pingReturn" type="soapenc:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="pingRequest">
+
+      <wsdl:part name="message" type="soapenc:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="processResponse">
+
+      <wsdl:part name="processReturn" type="tns1:Indexation"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="setParameterRequest">
+
+      <wsdl:part name="key" type="soapenc:string"/>
+
+      <wsdl:part name="value" type="soapenc:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="openSessionRequest">
+
+      <wsdl:part name="processName" type="soapenc:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="processRequest1">
+
+      <wsdl:part name="content" type="soapenc:string"/>
+
+      <wsdl:part name="reference" type="soapenc:string"/>
+
+      <wsdl:part name="processName" type="soapenc:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="listProcessesRequest">
+
+   </wsdl:message>
+
+   <wsdl:message name="pingServiceRequest">
+
+      <wsdl:part name="message" type="soapenc:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="pingServiceResponse">
+
+      <wsdl:part name="pingServiceReturn" type="soapenc:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="closeSessionResponse">
+
+   </wsdl:message>
+
+   <wsdl:portType name="ContentAugmentationWebService">
+
+      <wsdl:operation name="process" parameterOrder="content reference">
+
+         <wsdl:input message="impl:processRequest" name="processRequest"/>
+
+         <wsdl:output message="impl:processResponse" name="processResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="process" parameterOrder="content reference processName">
+
+         <wsdl:input message="impl:processRequest1" name="processRequest1"/>
+
+         <wsdl:output message="impl:processResponse1" name="processResponse1"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="setParameter" parameterOrder="key value">
+
+         <wsdl:input message="impl:setParameterRequest" name="setParameterRequest"/>
+
+         <wsdl:output message="impl:setParameterResponse" name="setParameterResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ping" parameterOrder="message">
+
+         <wsdl:input message="impl:pingRequest" name="pingRequest"/>
+
+         <wsdl:output message="impl:pingResponse" name="pingResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="openSession" parameterOrder="processName">
+
+         <wsdl:input message="impl:openSessionRequest" name="openSessionRequest"/>
+
+         <wsdl:output message="impl:openSessionResponse" name="openSessionResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="closeSession">
+
+         <wsdl:input message="impl:closeSessionRequest" name="closeSessionRequest"/>
+
+         <wsdl:output message="impl:closeSessionResponse" name="closeSessionResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="pingService" parameterOrder="message">
+
+         <wsdl:input message="impl:pingServiceRequest" name="pingServiceRequest"/>
+
+         <wsdl:output message="impl:pingServiceResponse" name="pingServiceResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="listProcesses">
+
+         <wsdl:input message="impl:listProcessesRequest" name="listProcessesRequest"/>
+
+         <wsdl:output message="impl:listProcessesResponse" name="listProcessesResponse"/>
+
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:binding name="ContentAugmentationSoapBinding" type="impl:ContentAugmentationWebService">
+
+      <wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="process">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="processRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="processResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="process">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="processRequest1">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="processResponse1">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="setParameter">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="setParameterRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="setParameterResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="ping">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="pingRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="pingResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="openSession">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="openSessionRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="openSessionResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="closeSession">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="closeSessionRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="closeSessionResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="pingService">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="pingServiceRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="pingServiceResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="listProcesses">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="listProcessesRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="listProcessesResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.mondeca.com/cas" use="encoded"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:service name="ContentAugmentationWebServiceService">
+
+      <wsdl:port binding="impl:ContentAugmentationSoapBinding" name="ContentAugmentation">
+
+         <wsdlsoap:address location="http://localhost:8888/ca-ws/services/ContentAugmentation"/>
+
+      </wsdl:port>
+
+   </wsdl:service>
+
+</wsdl:definitions>

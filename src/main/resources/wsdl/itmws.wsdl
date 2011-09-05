@@ -1,0 +1,1525 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:schema="http://itm.mondeca.com/schema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" targetNamespace="http://itm.mondeca.com/schema">
+  <wsdl:types>
+    <xs:schema xmlns="http://itm.mondeca.com/schema" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://itm.mondeca.com/schema">
+  
+  <xs:element name="ConnectionRequest" type="ConnectionRequestType"/>
+  <xs:complexType name="ConnectionRequestType">
+    <xs:sequence>
+      <xs:element name="login" type="xs:string"/>
+      <xs:element name="password" type="xs:string"/>
+      <xs:element name="client" type="xs:string"/>
+      <xs:element name="workspace" type="xs:int"/>
+      <xs:element name="language" type="xs:language"/>      
+      <xs:element name="jndiInitialFactory" nillable="true" type="xs:string"/>
+      <xs:element name="jndiProviderUrl" nillable="true" type="xs:string"/>
+      <xs:element name="jndiPrefix" nillable="true" type="xs:string"/>      
+      <xs:element default="false" name="anonymous" nillable="true" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ConnectionResponse" type="ConnectionResponseType"/>
+  <xs:complexType name="ConnectionResponseType">
+    <xs:sequence>
+      <xs:element name="identifier" type="xs:string"/>
+      <xs:element name="message" type="xs:string"/>
+      <xs:element name="successfull" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Generic response type for simple call that only require to return a boolean and a message -->
+  <xs:complexType name="GenericResponseType">
+    <xs:sequence>
+      <xs:element name="message" type="xs:string"/>
+      <xs:element default="true" name="successfull" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>  
+
+  <!-- super type for all the calls that will require a connectionID -->
+  <xs:complexType name="ConnectedRequestType">
+   <xs:sequence>
+      <xs:element name="connectionID" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <!-- service de logout -->
+  <xs:element name="LogoutRequest" type="ConnectedRequestType"/>
+  <xs:element name="LogoutResponse" type="GenericResponseType"/>
+  
+  <!-- TopicMap stuff -->
+  
+  <xs:complexType name="TopicMapType">
+    <xs:annotation>
+      <xs:documentation source="Element for all topics, associations and roles for a result" xml:lang="en"/>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element maxOccurs="1" minOccurs="0" name="associations">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="association" type="AssociationType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="topics">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="topic" type="TopicType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="TopicType">
+    <xs:complexContent>
+      <xs:extension base="ObjectType">
+        <xs:sequence>
+          <xs:element maxOccurs="1" minOccurs="0" name="associations">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="association" type="AssociationType"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element default="false" maxOccurs="1" minOccurs="0" name="referentialTopic" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AssociationType">
+    <xs:complexContent>
+      <xs:extension base="ObjectType">
+        <xs:sequence>
+          <xs:element name="roles">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="role" type="RoleType"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RoleType">
+    <xs:complexContent>
+      <xs:extension base="ObjectType">
+        <xs:sequence>
+          <xs:element name="association" type="xs:int"/>
+          <xs:element name="topic" type="TopicType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ObjectType">
+    <xs:sequence>
+      <xs:element maxOccurs="1" minOccurs="0" name="id" type="xs:int"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="uri" type="xs:anyURI"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="type" type="xs:int"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="typeUri" nillable="true" type="xs:string"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="dataItems">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="name" nillable="true" type="NameType"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="note" nillable="true" type="NoteType"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="link" nillable="true" type="LinkType"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="time" nillable="true" type="TimeType"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="pointer" nillable="true" type="PointerType"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="numeric" nillable="true" type="NumericType"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="xml" nillable="true" type="XMLType"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element maxOccurs="1" minOccurs="0" name="metadata" type="MetaDataType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType abstract="true" name="DataItemType">
+    <xs:sequence>
+      <xs:element name="id" type="xs:int"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="typeUri" type="xs:string"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="dataItemType" type="xs:int"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="metadata" type="MetaDataType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="NameType">
+    <xs:complexContent>
+      <xs:extension base="DataItemType">
+        <xs:sequence>
+          <xs:element maxOccurs="1" minOccurs="0" name="baseName" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="displayName" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="sortName" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="language" type="xs:int"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="NumericType">
+    <xs:complexContent>
+      <xs:extension base="DataItemType">
+        <xs:sequence>
+          <xs:element maxOccurs="1" minOccurs="0" name="unit" type="xs:int"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="uppervalue" type="xs:double"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="value" type="xs:double"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="NoteType">
+    <xs:complexContent>
+      <xs:extension base="DataItemType">
+        <xs:sequence>
+          <xs:element maxOccurs="1" minOccurs="0" name="note" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="language" type="xs:int"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="LinkType">
+    <xs:complexContent>
+      <xs:extension base="DataItemType">
+        <xs:sequence>
+          <xs:element maxOccurs="1" minOccurs="0" name="title" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="url" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="language" type="xs:int"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="TimeType">
+    <xs:complexContent>
+      <xs:extension base="DataItemType">
+        <xs:sequence>
+          <xs:element maxOccurs="1" minOccurs="0" name="beginTime" type="xs:dateTime"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="endTime" type="xs:dateTime"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PointerType">
+    <xs:complexContent>
+      <xs:extension base="DataItemType">
+        <xs:sequence>
+          <xs:element maxOccurs="1" minOccurs="0" name="topic" type="TopicType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="XMLType">
+    <xs:complexContent>
+      <xs:extension base="DataItemType">
+        <xs:sequence>
+          <xs:element maxOccurs="1" minOccurs="0" name="value" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ChoiceDataItemType">
+    <xs:choice>
+      <xs:element name="name" type="NameType"/>
+      <xs:element name="note" type="NoteType"/>
+      <xs:element name="link" type="LinkType"/>
+      <xs:element name="time" type="TimeType"/>
+      <xs:element name="xml" type="XMLType"/>
+      <xs:element name="pointer" type="PointerType"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="GenericType">
+    <xs:sequence>
+      <xs:element default="-1" name="id" type="xs:int"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="uri" type="xs:anyURI"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="type" type="xs:int"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="typeUri" type="xs:anyURI"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="topicMap" type="TopicMapType"/>
+  
+  <xs:complexType name="AllDataItemType">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="name" type="NameType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="note" type="NoteType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="link" type="LinkType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="time" type="TimeType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="xml" type="XMLType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="pointer" type="PointerType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="numeric" type="NumericType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MetaDataType">
+    <xs:sequence>
+      <xs:element maxOccurs="1" minOccurs="0" name="beginDate" type="xs:dateTime"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="endDate" type="xs:dateTime"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="creationDate" type="xs:dateTime"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="sourceDocument" type="xs:string"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="creationUser" type="xs:int"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="Quality" type="xs:int"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="source" type="xs:int"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="updateDate" type="xs:dateTime"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="updateUser" type="xs:int"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="workspace" type="xs:int"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="updatable" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="topic" type="TopicType"/>
+  
+  <!-- end TopicMap stuff -->
+  
+  <!-- Template stuff -->
+  <xs:complexType name="TemplateParametersType">
+    <xs:sequence>
+      <xs:element name="order" type="xs:int"/>
+      <xs:element name="comment" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="AssociationTypeParametersType">
+    <xs:complexContent>
+      <xs:extension base="TemplateParametersType">
+        <xs:sequence>
+          <xs:element name="isHierarchical" type="xs:boolean"/>
+          <xs:element name="isEditable" type="xs:boolean"/>
+          <xs:element name="associationDisplay" type="xs:int"/>
+          <xs:element name="reificationClassId" type="xs:int"/>
+          <xs:element name="displayAsAttribute" type="xs:boolean"/>
+          <xs:element name="requiresConfirmation" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ClassSchemaParametersType">
+    <xs:complexContent>
+      <xs:extension base="TemplateParametersType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ClassTemplateParametersType">
+    <xs:complexContent>
+      <xs:extension base="TemplateParametersType">
+        <xs:sequence>
+          <xs:element name="autoCreation" type="xs:boolean"/>
+          <xs:element name="abstractClass" type="xs:boolean"/>
+          <xs:element name="allowAutomaticNaming" type="xs:boolean"/>
+          <xs:element name="technicalName" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="RoleTypeSchemaParametersType">
+    <xs:complexContent>
+      <xs:extension base="TemplateParametersType">
+        <xs:sequence>
+          <xs:element name="isOriented" type="xs:boolean"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="maxCard" type="xs:int"/>
+          <xs:element minOccurs="0" name="minCard" type="xs:int"/>
+          <xs:element name="orientation" type="xs:int"/>
+          <xs:element name="showInfo" type="xs:boolean"/>
+          <xs:element name="allowCreationOnTheFly" type="xs:boolean"/>
+          <xs:element name="isEditable" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DataItemTypeParametersType">
+    <xs:complexContent>
+      <xs:extension base="TemplateParametersType">
+        <xs:sequence>
+          <xs:element name="isEditable" type="xs:boolean"/>
+          <xs:element name="dataItemDisplay" type="xs:int"/>
+          <xs:element name="resultOrder" type="xs:int"/>
+          <xs:element name="showInfo" type="xs:boolean"/>
+          <xs:element name="showAllLanguages" type="xs:boolean"/>
+          <xs:element name="showCounterCharacter" type="xs:boolean"/>
+          <xs:element name="usingLanguage" type="xs:boolean"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="maxCard" type="xs:int"/>
+          <xs:element minOccurs="0" name="minCard" type="xs:int"/>
+          <xs:element name="unique" type="xs:boolean"/>
+          <xs:element name="widgetType" type="xs:int"/>
+          <xs:element name="regularExpression" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DataItemTypeNumericParametersType">
+    <xs:complexContent>
+      <xs:extension base="DataItemTypeParametersType">
+        <xs:sequence>
+          <xs:element name="measurementSystemId" type="xs:int"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DataItemTypePointerParametersType">
+    <xs:complexContent>
+      <xs:extension base="DataItemTypeParametersType">
+        <xs:sequence>
+          <xs:element name="defaultValueId" type="xs:int"/>
+          <xs:element name="referenceTableId" type="xs:int"/>
+          <xs:element name="allowCreationOnTheFly" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="DataItemTypeTimeParameters">
+    <xs:complexContent>
+      <xs:extension base="DataItemTypeParametersType">
+        <xs:sequence>
+          <xs:element name="timeFormat" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ClassSchemaType">
+    <xs:sequence>
+      <xs:element name="referentialTopic" type="TopicType"/>
+      <xs:element name="templateParameters" type="TemplateParametersType"/>
+      <xs:element name="toUse" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="RoleTemplateType">
+    <xs:sequence>
+      <xs:element name="roleType" type="TopicType"/>
+      <xs:element maxOccurs="unbounded" name="classes" type="ClassSchemaType"/>
+      <xs:element name="roleParameters" type="RoleTypeSchemaParametersType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DataItemTemplateType">
+    <xs:sequence>
+      <xs:element name="dataItemType" type="TopicType"/>
+      <xs:element name="dataItemTypeParameters" type="DataItemTypeParametersType"/>
+      <xs:element name="dipType" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" name="classSchemas" type="ClassSchemaType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="AssociationTemplateType">
+    <xs:sequence>
+      <xs:element name="associationType" type="TopicType"/>
+      <xs:element name="associationTypeParameters" type="AssociationTypeParametersType"/>
+      <xs:element maxOccurs="unbounded" name="roleTemplate" type="RoleTemplateType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ClassTemplateType">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="associationTemplate" type="AssociationTemplateType"/>
+      <xs:element maxOccurs="unbounded" name="dataItemTemplate" type="DataItemTemplateType"/>
+      <xs:element name="classTopic" type="TopicType"/>
+      <xs:element name="classTemplateParameters" type="ClassTemplateParametersType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <!-- End Template stuff -->  
+ 
+  <!-- CRUD stuff -->
+ 
+  <xs:complexType name="CreationTopicType">
+    <xs:complexContent>
+      <xs:extension base="GenericType">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="dataItemCreation" type="AllDataItemType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UpdateTopicType">
+    <xs:complexContent>
+      <xs:extension base="CreationTopicType">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="dataItemUpdate" type="AllDataItemType"/>
+          <xs:element minOccurs="0" name="dataItemDelete" type="AllDataItemType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="CreationAssociationType">
+    <xs:complexContent>
+      <xs:extension base="GenericType">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="roleCreation" type="RoleType"/>
+          <xs:element minOccurs="0" name="dataItemCreation" type="AllDataItemType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="UpdateAssociationType">
+    <xs:complexContent>
+      <xs:extension base="CreationAssociationType">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="dataItemUpdate" type="AllDataItemType"/>
+          <xs:element minOccurs="0" name="dataItemDelete" type="AllDataItemType"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="roleDelete" type="RoleType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="DeleteAssociationType">
+    <xs:sequence>
+      <xs:element default="-1" name="id" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="CreateSimpleTopicRequest" type="CreateSimpleTopicRequestType"/>
+  <xs:complexType name="CreateSimpleTopicRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      <xs:element name="psi" type="xs:string"/>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="language" type="xs:language"/>
+      <xs:element name="topicClass" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CreateSimpleTopicResponse" type="TopicType"/>
+  
+  
+  <xs:element name="CreateTopicRequest" type="CreateTopicRequestType"/>
+  <xs:complexType name="CreateTopicRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+	  <xs:element name="topicCreation" type="CreationTopicType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CreateTopicResponse" type="TopicType"/>
+  
+  <xs:element name="UpdateTopicRequest" type="UpdateTopicRequestType"/>
+  <xs:complexType name="UpdateTopicRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+	        <xs:element name="topicUpdate" type="UpdateTopicType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="UpdateTopicResponse" type="TopicType"/>
+  
+    
+  <xs:complexType name="DeleteTopicType">
+    <xs:sequence>
+      <xs:element default="-1" name="id" type="xs:int"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="uri" type="xs:anyURI"/>
+    </xs:sequence>
+  </xs:complexType> 
+  
+  <xs:element name="DeleteTopicRequest" type="DeleteTopicRequestType"/>
+  <xs:complexType name="DeleteTopicRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+	      <xs:element name="topicDelete" type="DeleteTopicType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="DeleteTopicResponse" type="DeleteTopicResponseType"/>
+  <xs:complexType name="DeleteTopicResponseType">
+    <xs:complexContent>
+      <xs:extension base="GenericResponseType"/>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:element name="CreateAssociationRequest" type="CreateAssociationRequestType"/>
+  <xs:complexType name="CreateAssociationRequestType">
+      <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+	        <xs:element name="associationCreation" type="CreationAssociationType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CreateAssociationResponse" type="AssociationType"/>
+  
+  <xs:element name="UpdateAssociationRequest" type="UpdateAssociationType"/>
+  <xs:complexType name="UpdateAssociationRequestType">
+      <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+        <xs:element name="associationUpdate" type="UpdateAssociationType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="UpdateAssociationResponse" type="AssociationType"/>
+  
+  <xs:element name="DeleteAssociationRequest" type="DeleteAssociationRequestType"/>
+  <xs:complexType name="DeleteAssociationRequestType">
+        <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+        <xs:element name="associationDelete" type="DeleteAssociationType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="DeleteAssociationResponse" type="DeleteAssociationResponseType"/>
+  <xs:complexType name="DeleteAssociationResponseType">
+    <xs:complexContent>
+      <xs:extension base="GenericResponseType"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- end CRUD stuff -->
+
+  <xs:complexType name="GetTopicRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+                <xs:element name="psi" type="xs:string"/>
+	      <xs:element default="false" name="light" type="xs:boolean"/>
+	      <xs:element default="true" name="getMetaData" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="GetTopicRequest" type="GetTopicRequestType"/>
+  <xs:element name="GetTopicResponse" type="TopicType"/>
+  <xs:complexType name="QueryResultType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      <xs:element name="topicMap" type="TopicMapType"/>
+      <xs:element default="-1" maxOccurs="1" minOccurs="0" name="totalLength" type="xs:int"/>
+      <xs:element default="true" maxOccurs="1" minOccurs="0" name="reachMaximumSize" type="xs:boolean"/>
+      <xs:element default="-1" maxOccurs="1" minOccurs="0" name="length" type="xs:int"/>
+      <xs:element default="0" maxOccurs="1" minOccurs="0" name="offSet" type="xs:int"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="SearchByNameRequest" type="SearchByNameRequestType"/>
+  <xs:complexType name="SearchByNameRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      <xs:element maxOccurs="1" minOccurs="1" name="word" type="xs:string"/>
+      <xs:element default="begin" maxOccurs="1" minOccurs="0" name="searchMode" type="xs:string"/>
+      <xs:element maxOccurs="1" minOccurs="0" name="classpsi" type="xs:string"/>
+      <xs:element default="true" name="includeReferentialTopics" type="xs:boolean"/>
+      <xs:element default="false" name="fullText" type="xs:boolean"/>
+      <xs:element default="false" name="light" type="xs:boolean"/>
+      <xs:element default="true" name="getMetaData" type="xs:boolean"/>
+      <xs:element default="-1" name="length" type="xs:int"/>
+      <xs:element default="0" name="offSet" type="xs:int"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>  
+  </xs:complexType>
+  <xs:element name="SearchByNameResponse" type="QueryResultType"/>
+  <xs:element name="ListInstancesRequest" type="ListInstancesRequestType"/>
+  <xs:complexType name="ListInstancesRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      <xs:element maxOccurs="1" minOccurs="1" name="classpsi" type="xs:string"/>
+      <xs:element default="false" name="light" type="xs:boolean"/>
+      <xs:element default="true" name="getMetaData" type="xs:boolean"/>
+      <xs:element default="-1" name="length" type="xs:int"/>
+      <xs:element default="0" name="offSet" type="xs:int"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent> 
+  </xs:complexType>
+  <xs:element name="ListInstancesResponse" type="QueryResultType"/>
+
+  <xs:element name="EnquireRequest" type="EnquireRequestType"/>
+  <xs:complexType name="EnquireRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      <xs:element name="query" type="xs:string"/>
+      <xs:element default="true" name="includeReferentialTopics" type="xs:boolean"/>
+      <xs:element default="false" name="light" type="xs:boolean"/>
+      <xs:element default="true" name="getMetaData" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="EnquireResponse" type="QueryResultType"/>
+  <xs:element name="BrowsableEnquireRequest" type="BrowsableEnquireRequestType"/>
+  <xs:complexType name="BrowsableEnquireRequestType">
+    <xs:complexContent>
+      <xs:extension base="EnquireRequestType">
+        <xs:sequence>
+          <xs:element default="-1" name="length" type="xs:int"/>
+          <xs:element default="0" name="offSet" type="xs:int"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="BrowsableEnquireResponse" type="QueryResultType"/>
+
+  <xs:element name="GetClassTemplateRequest" type="ClassTemplateRequestType"/>
+  <xs:complexType name="ClassTemplateRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      	<xs:element maxOccurs="unbounded" name="ClassPSI" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="GetClassTemplateResponse" type="ClassTemplateResponseType"/>
+  <xs:complexType name="ClassTemplateResponseType">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="ClassTemplate" type="ClassTemplateType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GetAssociationTemplateRequest" type="AssociationTemplateRequestType"/>
+  <xs:complexType name="AssociationTemplateRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      	<xs:element maxOccurs="unbounded" name="AssociationPSI" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="GetAssociationTemplateResponse" type="AssociationTemplateResponseType"/>
+  <xs:complexType name="AssociationTemplateResponseType">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="AssociationTemplate" type="AssociationTemplateType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ModifyAlertStatusRequest" type="ModifyAlertStatusRequestType"/>
+  <xs:complexType name="ModifyAlertStatusRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      	<xs:element name="NewStatus" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ModifyAlertSatusResponse" type="GenericResponseType"/>
+
+
+  <!-- SPARQL stuff -->
+  
+  <xs:simpleType name="TypeRepository">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="oracle_rdf"/>
+      <xs:enumeration value="sesame"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="ConnectionSparqlEndpointRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectionRequestType">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="oracle" type="OracleConnectionIdentifiersType"/>
+          <xs:element default="oracle_rdf" name="type" type="TypeRepository"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ConnectionSparqlEndpointRequest" type="ConnectionSparqlEndpointRequestType"/>
+  <xs:complexType name="OracleConnectionIdentifiersType">
+    <xs:sequence>
+      <xs:element name="connection-url" type="xs:string"/>
+      <xs:element name="user" type="xs:string"/>
+      <xs:element name="password" type="xs:string"/>
+      <xs:element name="model" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+    <!-- end SPARQL stuff -->
+
+
+  
+  <!-- CTS2 stuff -->
+  
+  <xs:element name="ListCodeSystemsRequest" type="ListCodeSystemsRequestType"/>
+  <xs:element name="ListCodeSystemsResponse" type="QueryResultType"/>
+  <xs:complexType name="ReturnCodeSystemDefinitionRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      <xs:element name="codeSystemIdentifier" type="xs:string"/>
+      <xs:element name="codeSystemVersion" type="xs:string"/>
+            <xs:element default="false" name="light" type="xs:boolean"/>
+      <xs:element default="true" name="getMetaData" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ReturnCodeSystemDefinitionRequest" type="ReturnCodeSystemDefinitionRequestType"/>
+  <xs:element name="ReturnCodeSystemDefinitionResponse" type="TopicType"/>
+  <xs:complexType name="ListCodeSystemConceptsRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      <xs:element name="codeSystemIdentifier" type="xs:string"/>
+      <xs:element name="codeSystemVersion" type="xs:string"/>
+      <xs:element default="false" name="light" type="xs:boolean"/>
+      <xs:element default="true" name="getMetaData" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ListCodeSystemConceptsRequest" type="ListCodeSystemConceptsRequestType"/>
+  <xs:element name="ListCodeSystemConceptsResponse" type="QueryResultType"/>
+  <xs:complexType name="ReturnCodedConceptDefinitionRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      <xs:element name="codeSystemIdentifier" type="xs:string"/>
+      <xs:element name="codeSystemVersion" type="xs:string"/>
+      <xs:element name="codedSystemIdentifier" type="xs:string"/>
+      <xs:element name="codedSystemVersion" type="xs:string"/>
+      <xs:element default="false" name="light" type="xs:boolean"/>
+      <xs:element default="true" name="getMetaData" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ReturnCodedConceptDefinitionRequest" type="ReturnCodedConceptDefinitionRequestType"/>
+  <xs:element name="ReturnCodedConceptDefinitionResponse" type="TopicType"/>
+  <xs:complexType name="ListValueSetsRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      <xs:element default="false" name="light" type="xs:boolean"/>
+      <xs:element default="true" name="getMetaData" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ListValueSetsRequest" type="ListValueSetsRequestType"/>
+  <xs:element name="ListValueSetsResponse" type="QueryResultType"/>
+  <xs:complexType name="ReturnValueSetsRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      <xs:element name="codeValueSetIdentifier" type="xs:string"/>
+      <xs:element name="codeValueSetVersion" type="xs:string"/>
+      <xs:element default="false" name="light" type="xs:boolean"/>
+      <xs:element default="true" name="getMetaData" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ReturnValueSetsRequest" type="ReturnValueSetsRequestType"/>
+  <xs:element name="ReturnValueSetsResponse" type="TopicType"/>
+  <xs:complexType name="ReturnValueSetDefinitionRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      <xs:element name="codeValueSetIdentifier" type="xs:string"/>
+      <xs:element name="codeValueSetVersion" type="xs:string"/>
+      <xs:element default="false" name="light" type="xs:boolean"/>
+      <xs:element default="true" name="getMetaData" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ReturnValueSetDefinitionRequest" type="ReturnValueSetDefinitionRequestType"/>
+  <xs:element name="ReturnValueSetDefinitionResponse" type="TopicType"/>
+  <xs:complexType name="ListValueSetContentsRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      <xs:element name="valueSetIdentifier" type="xs:string"/>
+      <xs:element name="valueSetVersion" type="xs:string"/>
+      <xs:element default="false" name="light" type="xs:boolean"/>
+      <xs:element default="true" name="getMetaData" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ListValueSetContentsRequest" type="ListValueSetContentsRequestType"/>
+  <xs:element name="ListValueSetContentsResponse" type="QueryResultType"/>
+  <xs:complexType name="CheckConceptValueSetMemberShipRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      <xs:element name="codeValueSetIdentifier" type="xs:string"/>
+      <xs:element name="codeValueSetVersion" type="xs:string"/>
+      <xs:element name="valueSetIdentifier" type="xs:string"/>
+      <xs:element name="valueSetVersion" type="xs:string"/>
+      <xs:element default="false" name="light" type="xs:boolean"/>
+      <xs:element default="true" name="getMetaData" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CheckConceptValueSetMemberShipRequest" type="CheckConceptValueSetMemberShipRequestType"/>
+  <xs:complexType name="CheckConceptValueSetMemberShipResponseType">
+    <xs:sequence>
+      <xs:element name="exist" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CheckConceptValueSetMemberShipResponse" type="CheckConceptValueSetMemberShipResponseType"/>
+  <xs:complexType name="ListConceptDomainsRequestType">
+    <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+	<xs:element default="false" name="light" type="xs:boolean"/>
+      <xs:element default="true" name="getMetaData" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ListConceptDomainsRequest" type="ListConceptDomainsRequestType"/>
+  <xs:complexType name="ListConceptDomainsResponseType">
+    <xs:sequence>
+      <xs:element name="message" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ListConceptDomainsResponse" type="QueryResultType"/>  
+  
+    <xs:complexType name="ListCodeSystemsRequestType">
+        <xs:complexContent>
+      <xs:extension base="ConnectedRequestType">
+        <xs:sequence>
+      <xs:element default="false" name="light" type="xs:boolean"/>
+      <xs:element default="true" name="getMetaData" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- end CTS2 stuff -->
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="CheckConceptValueSetMemberShipRequest">
+    <wsdl:part element="schema:CheckConceptValueSetMemberShipRequest" name="CheckConceptValueSetMemberShipRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="LogoutResponse">
+    <wsdl:part element="schema:LogoutResponse" name="LogoutResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="GetClassTemplateResponse">
+    <wsdl:part element="schema:GetClassTemplateResponse" name="GetClassTemplateResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListValueSetsRequest">
+    <wsdl:part element="schema:ListValueSetsRequest" name="ListValueSetsRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ReturnValueSetDefinitionResponse">
+    <wsdl:part element="schema:ReturnValueSetDefinitionResponse" name="ReturnValueSetDefinitionResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="SearchByNameRequest">
+    <wsdl:part element="schema:SearchByNameRequest" name="SearchByNameRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="DeleteTopicResponse">
+    <wsdl:part element="schema:DeleteTopicResponse" name="DeleteTopicResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="EnquireResponse">
+    <wsdl:part element="schema:EnquireResponse" name="EnquireResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ModifyAlertSatusResponse">
+    <wsdl:part element="schema:ModifyAlertSatusResponse" name="ModifyAlertSatusResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="GetAssociationTemplateRequest">
+    <wsdl:part element="schema:GetAssociationTemplateRequest" name="GetAssociationTemplateRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListCodeSystemConceptsResponse">
+    <wsdl:part element="schema:ListCodeSystemConceptsResponse" name="ListCodeSystemConceptsResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="BrowsableEnquireResponse">
+    <wsdl:part element="schema:BrowsableEnquireResponse" name="BrowsableEnquireResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="CreateAssociationResponse">
+    <wsdl:part element="schema:CreateAssociationResponse" name="CreateAssociationResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListInstancesRequest">
+    <wsdl:part element="schema:ListInstancesRequest" name="ListInstancesRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ModifyAlertStatusRequest">
+    <wsdl:part element="schema:ModifyAlertStatusRequest" name="ModifyAlertStatusRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListCodeSystemConceptsRequest">
+    <wsdl:part element="schema:ListCodeSystemConceptsRequest" name="ListCodeSystemConceptsRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ConnectionRequest">
+    <wsdl:part element="schema:ConnectionRequest" name="ConnectionRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="SearchByNameResponse">
+    <wsdl:part element="schema:SearchByNameResponse" name="SearchByNameResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="LogoutRequest">
+    <wsdl:part element="schema:LogoutRequest" name="LogoutRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ConnectionResponse">
+    <wsdl:part element="schema:ConnectionResponse" name="ConnectionResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="BrowsableEnquireRequest">
+    <wsdl:part element="schema:BrowsableEnquireRequest" name="BrowsableEnquireRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ReturnValueSetDefinitionRequest">
+    <wsdl:part element="schema:ReturnValueSetDefinitionRequest" name="ReturnValueSetDefinitionRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="EnquireRequest">
+    <wsdl:part element="schema:EnquireRequest" name="EnquireRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="UpdateTopicResponse">
+    <wsdl:part element="schema:UpdateTopicResponse" name="UpdateTopicResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="DeleteTopicRequest">
+    <wsdl:part element="schema:DeleteTopicRequest" name="DeleteTopicRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="DeleteAssociationRequest">
+    <wsdl:part element="schema:DeleteAssociationRequest" name="DeleteAssociationRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="UpdateTopicRequest">
+    <wsdl:part element="schema:UpdateTopicRequest" name="UpdateTopicRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="CreateTopicResponse">
+    <wsdl:part element="schema:CreateTopicResponse" name="CreateTopicResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListValueSetContentsRequest">
+    <wsdl:part element="schema:ListValueSetContentsRequest" name="ListValueSetContentsRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="UpdateAssociationResponse">
+    <wsdl:part element="schema:UpdateAssociationResponse" name="UpdateAssociationResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ConnectionSparqlEndpointRequest">
+    <wsdl:part element="schema:ConnectionSparqlEndpointRequest" name="ConnectionSparqlEndpointRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ReturnCodeSystemDefinitionRequest">
+    <wsdl:part element="schema:ReturnCodeSystemDefinitionRequest" name="ReturnCodeSystemDefinitionRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ReturnValueSetsRequest">
+    <wsdl:part element="schema:ReturnValueSetsRequest" name="ReturnValueSetsRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="CreateSimpleTopicRequest">
+    <wsdl:part element="schema:CreateSimpleTopicRequest" name="CreateSimpleTopicRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="GetTopicRequest">
+    <wsdl:part element="schema:GetTopicRequest" name="GetTopicRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="GetAssociationTemplateResponse">
+    <wsdl:part element="schema:GetAssociationTemplateResponse" name="GetAssociationTemplateResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListCodeSystemsResponse">
+    <wsdl:part element="schema:ListCodeSystemsResponse" name="ListCodeSystemsResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListValueSetContentsResponse">
+    <wsdl:part element="schema:ListValueSetContentsResponse" name="ListValueSetContentsResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="GetTopicResponse">
+    <wsdl:part element="schema:GetTopicResponse" name="GetTopicResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ReturnCodedConceptDefinitionRequest">
+    <wsdl:part element="schema:ReturnCodedConceptDefinitionRequest" name="ReturnCodedConceptDefinitionRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="DeleteAssociationResponse">
+    <wsdl:part element="schema:DeleteAssociationResponse" name="DeleteAssociationResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListInstancesResponse">
+    <wsdl:part element="schema:ListInstancesResponse" name="ListInstancesResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="CreateSimpleTopicResponse">
+    <wsdl:part element="schema:CreateSimpleTopicResponse" name="CreateSimpleTopicResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListConceptDomainsResponse">
+    <wsdl:part element="schema:ListConceptDomainsResponse" name="ListConceptDomainsResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="CreateTopicRequest">
+    <wsdl:part element="schema:CreateTopicRequest" name="CreateTopicRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ReturnCodeSystemDefinitionResponse">
+    <wsdl:part element="schema:ReturnCodeSystemDefinitionResponse" name="ReturnCodeSystemDefinitionResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ReturnValueSetsResponse">
+    <wsdl:part element="schema:ReturnValueSetsResponse" name="ReturnValueSetsResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListValueSetsResponse">
+    <wsdl:part element="schema:ListValueSetsResponse" name="ListValueSetsResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ReturnCodedConceptDefinitionResponse">
+    <wsdl:part element="schema:ReturnCodedConceptDefinitionResponse" name="ReturnCodedConceptDefinitionResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="GetClassTemplateRequest">
+    <wsdl:part element="schema:GetClassTemplateRequest" name="GetClassTemplateRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="CheckConceptValueSetMemberShipResponse">
+    <wsdl:part element="schema:CheckConceptValueSetMemberShipResponse" name="CheckConceptValueSetMemberShipResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListCodeSystemsRequest">
+    <wsdl:part element="schema:ListCodeSystemsRequest" name="ListCodeSystemsRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ListConceptDomainsRequest">
+    <wsdl:part element="schema:ListConceptDomainsRequest" name="ListConceptDomainsRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="UpdateAssociationRequest">
+    <wsdl:part element="schema:UpdateAssociationRequest" name="UpdateAssociationRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="CreateAssociationRequest">
+    <wsdl:part element="schema:CreateAssociationRequest" name="CreateAssociationRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="ITM">
+    <wsdl:operation name="CheckConceptValueSetMemberShip">
+      <wsdl:input message="schema:CheckConceptValueSetMemberShipRequest" name="CheckConceptValueSetMemberShipRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:CheckConceptValueSetMemberShipResponse" name="CheckConceptValueSetMemberShipResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ListValueSets">
+      <wsdl:input message="schema:ListValueSetsRequest" name="ListValueSetsRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:ListValueSetsResponse" name="ListValueSetsResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchByName">
+      <wsdl:input message="schema:SearchByNameRequest" name="SearchByNameRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:SearchByNameResponse" name="SearchByNameResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAssociationTemplate">
+      <wsdl:input message="schema:GetAssociationTemplateRequest" name="GetAssociationTemplateRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:GetAssociationTemplateResponse" name="GetAssociationTemplateResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ListInstances">
+      <wsdl:input message="schema:ListInstancesRequest" name="ListInstancesRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:ListInstancesResponse" name="ListInstancesResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyAlertStatus">
+      <wsdl:input message="schema:ModifyAlertStatusRequest" name="ModifyAlertStatusRequest">
+    </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="ListCodeSystemConcepts">
+      <wsdl:input message="schema:ListCodeSystemConceptsRequest" name="ListCodeSystemConceptsRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:ListCodeSystemConceptsResponse" name="ListCodeSystemConceptsResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Connection">
+      <wsdl:input message="schema:ConnectionRequest" name="ConnectionRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:ConnectionResponse" name="ConnectionResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Logout">
+      <wsdl:input message="schema:LogoutRequest" name="LogoutRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:LogoutResponse" name="LogoutResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BrowsableEnquire">
+      <wsdl:input message="schema:BrowsableEnquireRequest" name="BrowsableEnquireRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:BrowsableEnquireResponse" name="BrowsableEnquireResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReturnValueSetDefinition">
+      <wsdl:input message="schema:ReturnValueSetDefinitionRequest" name="ReturnValueSetDefinitionRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:ReturnValueSetDefinitionResponse" name="ReturnValueSetDefinitionResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Enquire">
+      <wsdl:input message="schema:EnquireRequest" name="EnquireRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:EnquireResponse" name="EnquireResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTopic">
+      <wsdl:input message="schema:DeleteTopicRequest" name="DeleteTopicRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:DeleteTopicResponse" name="DeleteTopicResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteAssociation">
+      <wsdl:input message="schema:DeleteAssociationRequest" name="DeleteAssociationRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:DeleteAssociationResponse" name="DeleteAssociationResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTopic">
+      <wsdl:input message="schema:UpdateTopicRequest" name="UpdateTopicRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:UpdateTopicResponse" name="UpdateTopicResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ListValueSetContents">
+      <wsdl:input message="schema:ListValueSetContentsRequest" name="ListValueSetContentsRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:ListValueSetContentsResponse" name="ListValueSetContentsResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ConnectionSparqlEndpoint">
+      <wsdl:input message="schema:ConnectionSparqlEndpointRequest" name="ConnectionSparqlEndpointRequest">
+    </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="ReturnCodeSystemDefinition">
+      <wsdl:input message="schema:ReturnCodeSystemDefinitionRequest" name="ReturnCodeSystemDefinitionRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:ReturnCodeSystemDefinitionResponse" name="ReturnCodeSystemDefinitionResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReturnValueSets">
+      <wsdl:input message="schema:ReturnValueSetsRequest" name="ReturnValueSetsRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:ReturnValueSetsResponse" name="ReturnValueSetsResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateSimpleTopic">
+      <wsdl:input message="schema:CreateSimpleTopicRequest" name="CreateSimpleTopicRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:CreateSimpleTopicResponse" name="CreateSimpleTopicResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTopic">
+      <wsdl:input message="schema:GetTopicRequest" name="GetTopicRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:GetTopicResponse" name="GetTopicResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReturnCodedConceptDefinition">
+      <wsdl:input message="schema:ReturnCodedConceptDefinitionRequest" name="ReturnCodedConceptDefinitionRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:ReturnCodedConceptDefinitionResponse" name="ReturnCodedConceptDefinitionResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateTopic">
+      <wsdl:input message="schema:CreateTopicRequest" name="CreateTopicRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:CreateTopicResponse" name="CreateTopicResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetClassTemplate">
+      <wsdl:input message="schema:GetClassTemplateRequest" name="GetClassTemplateRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:GetClassTemplateResponse" name="GetClassTemplateResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ListCodeSystems">
+      <wsdl:input message="schema:ListCodeSystemsRequest" name="ListCodeSystemsRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:ListCodeSystemsResponse" name="ListCodeSystemsResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ListConceptDomains">
+      <wsdl:input message="schema:ListConceptDomainsRequest" name="ListConceptDomainsRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:ListConceptDomainsResponse" name="ListConceptDomainsResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAssociation">
+      <wsdl:input message="schema:UpdateAssociationRequest" name="UpdateAssociationRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:UpdateAssociationResponse" name="UpdateAssociationResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateAssociation">
+      <wsdl:input message="schema:CreateAssociationRequest" name="CreateAssociationRequest">
+    </wsdl:input>
+      <wsdl:output message="schema:CreateAssociationResponse" name="CreateAssociationResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ITMBinding" type="schema:ITM">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="CheckConceptValueSetMemberShip">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="CheckConceptValueSetMemberShipRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CheckConceptValueSetMemberShipResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ListValueSets">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="ListValueSetsRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ListValueSetsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchByName">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="SearchByNameRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="SearchByNameResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAssociationTemplate">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="GetAssociationTemplateRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="GetAssociationTemplateResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ListInstances">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="ListInstancesRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ListInstancesResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyAlertStatus">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="ModifyAlertStatusRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="ListCodeSystemConcepts">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="ListCodeSystemConceptsRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ListCodeSystemConceptsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Connection">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="ConnectionRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ConnectionResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Logout">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="LogoutRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="LogoutResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BrowsableEnquire">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="BrowsableEnquireRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="BrowsableEnquireResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReturnValueSetDefinition">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="ReturnValueSetDefinitionRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ReturnValueSetDefinitionResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Enquire">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="EnquireRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="EnquireResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTopic">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="DeleteTopicRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="DeleteTopicResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteAssociation">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="DeleteAssociationRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="DeleteAssociationResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTopic">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="UpdateTopicRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="UpdateTopicResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ListValueSetContents">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="ListValueSetContentsRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ListValueSetContentsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ConnectionSparqlEndpoint">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="ConnectionSparqlEndpointRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="ReturnCodeSystemDefinition">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="ReturnCodeSystemDefinitionRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ReturnCodeSystemDefinitionResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReturnValueSets">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="ReturnValueSetsRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ReturnValueSetsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateSimpleTopic">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="CreateSimpleTopicRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CreateSimpleTopicResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTopic">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="GetTopicRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="GetTopicResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReturnCodedConceptDefinition">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="ReturnCodedConceptDefinitionRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ReturnCodedConceptDefinitionResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateTopic">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="CreateTopicRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CreateTopicResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetClassTemplate">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="GetClassTemplateRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="GetClassTemplateResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ListCodeSystems">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="ListCodeSystemsRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ListCodeSystemsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ListConceptDomains">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="ListConceptDomainsRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ListConceptDomainsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAssociation">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="UpdateAssociationRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="UpdateAssociationResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateAssociation">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="CreateAssociationRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CreateAssociationResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ITMService">
+    <wsdl:port binding="schema:ITMBinding" name="ITMPort">
+      <soap:address location="http://localhost:8180/itmWebservices/itmWebservices"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
