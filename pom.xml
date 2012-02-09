@@ -183,15 +183,18 @@
     <!-- Stanbol API to implement -->
     <dependency>
       <groupId>org.apache.stanbol</groupId>
+      <artifactId>org.apache.stanbol.entityhub.servicesapi</artifactId>
+      <version>${stanbol.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.stanbol</groupId>
       <artifactId>org.apache.stanbol.enhancer.servicesapi</artifactId>
       <version>${stanbol.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.clerezza</groupId>
       <artifactId>rdf.core</artifactId>
       <version>0.12-incubating-SNAPSHOT</version>
-      <scope>provided</scope>
     </dependency>
 
     <!-- OSGi -->
@@ -199,19 +202,16 @@
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
       <version>4.1.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.compendium</artifactId>
       <version>4.1.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.felix</groupId>
       <artifactId>org.apache.felix.scr.annotations</artifactId>
       <version>1.4.0</version>
-      <scope>provided</scope>
     </dependency>
 
     <!-- SOAP -->
@@ -219,7 +219,6 @@
       <groupId>com.sun.xml.ws</groupId>
       <artifactId>jaxws-rt</artifactId>
       <version>2.1.7</version>
-      <scope>provided</scope>
     </dependency>
 
     <!-- Logging -->
@@ -227,13 +226,11 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.1.1</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>1.5.2</version>
-      <scope>provided</scope>
     </dependency>
 
     <!-- Other useful stuff -->
@@ -241,13 +238,11 @@
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>2.4</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>1.4</version>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
