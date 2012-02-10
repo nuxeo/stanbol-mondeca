@@ -8,17 +8,31 @@ import java.util.Dictionary;
 
 import javax.xml.namespace.QName;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.stanbol.entityhub.core.mapping.DefaultFieldMapperImpl;
+import org.apache.stanbol.entityhub.core.mapping.ValueConverterFactory;
+import org.apache.stanbol.entityhub.core.query.DefaultQueryFactory;
+import org.apache.stanbol.entityhub.servicesapi.mapping.FieldMapper;
+import org.apache.stanbol.entityhub.servicesapi.model.Entity;
 import org.apache.stanbol.entityhub.servicesapi.model.Representation;
 import org.apache.stanbol.entityhub.servicesapi.query.FieldQuery;
+import org.apache.stanbol.entityhub.servicesapi.query.FieldQueryFactory;
 import org.apache.stanbol.entityhub.servicesapi.query.QueryResultList;
-import org.apache.stanbol.entityhub.servicesapi.site.EntityDereferencer;
-import org.apache.stanbol.entityhub.servicesapi.site.EntitySearcher;
+import org.apache.stanbol.entityhub.servicesapi.site.ReferencedSite;
+import org.apache.stanbol.entityhub.servicesapi.site.ReferencedSiteException;
+import org.apache.stanbol.entityhub.servicesapi.site.SiteConfiguration;
+import org.apache.stanbol.entityhub.site.linkeddata.impl.CoolUriDereferencer;
 import org.nuxeo.stanbol.mondeca.impl.ConnectedRequestType;
 import org.nuxeo.stanbol.mondeca.impl.ConnectionRequestType;
 import org.nuxeo.stanbol.mondeca.impl.ConnectionResponseType;
+import org.nuxeo.stanbol.mondeca.impl.GetTopicRequestType;
 import org.nuxeo.stanbol.mondeca.impl.ITM;
 import org.nuxeo.stanbol.mondeca.impl.ITMService;
+import org.nuxeo.stanbol.mondeca.impl.TopicType;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 
@@ -26,7 +40,10 @@ import org.osgi.service.component.ComponentContext;
  * Adapter to make EntityHub reference sites able to perform query on an ITM instance through the SOAP
  * WebService.
  */
-public class ITMEntitySource implements EntitySearcher, EntityDereferencer {
+@Component(configurationFactory = true, policy = ConfigurationPolicy.REQUIRE, specVersion = "1.1")
+@Service
+@Properties(value = {@Property(name = SiteConfiguration.ID)})
+public class ITMEntitySource implements ReferencedSite {
 
     public static QName SERVICE_NAME = new QName("http://itm.mondeca.com/schema", "ITMService");
 
@@ -55,6 +72,10 @@ public class ITMEntitySource implements EntitySearcher, EntityDereferencer {
 
     protected ConnectionRequestType connectionParams;
 
+    protected String id;
+
+    protected DefaultFieldMapperImpl fieldMappings;
+
     /**
      * Load a required property value from OSGi context with fall-back on environment variable.
      * 
@@ -82,6 +103,7 @@ public class ITMEntitySource implements EntitySearcher, EntityDereferencer {
         } catch (MalformedURLException e) {
             throw new ConfigurationException(SERVICE_WSDL_URL_PROPERTY, e.getMessage());
         }
+        id = getFromPropertiesOrEnv(properties, SiteConfiguration.ID);
         connectionParams = new ConnectionRequestType();
         connectionParams.setWorkspace(Integer
                 .valueOf(getFromPropertiesOrEnv(properties, SERVICE_WORKSPACE_ID)));
@@ -92,9 +114,12 @@ public class ITMEntitySource implements EntitySearcher, EntityDereferencer {
         connectionParams
                 .setJndiProviderUrl(getFromPropertiesOrEnv(properties, SERVICE_JNDI_PROVIDER_PROPERTY));
         connectionParams.setAnonymous(false);
+
+        // TODO: make field mappings configurable
+        fieldMappings = new DefaultFieldMapperImpl(ValueConverterFactory.getDefaultInstance());
     }
 
-    public void activate(ComponentContext ce) throws ConfigurationException {
+    public void activate(ComponentContext ce) throws ConfigurationException, ReferencedSiteException {
         @SuppressWarnings("unchecked")
         Dictionary<String,String> properties = ce.getProperties();
         configure(properties);
@@ -102,10 +127,10 @@ public class ITMEntitySource implements EntitySearcher, EntityDereferencer {
         logout(connect());
     }
 
-    protected String connect() throws ConfigurationException {
+    protected String connect() throws ReferencedSiteException {
         ConnectionResponseType connection = itmPort.connection(connectionParams);
         if (!connection.isSuccessfull()) {
-            throw new ConfigurationException(SERVICE_WSDL_URL_PROPERTY, connection.getMessage());
+            throw new ReferencedSiteException(connection.getMessage());
         }
         return connection.getIdentifier();
     }
@@ -121,46 +146,96 @@ public class ITMEntitySource implements EntitySearcher, EntityDereferencer {
     public void deactiveate(ComponentContext ce) throws ConfigurationException {
         itmPort = null;
         connectionParams = null;
+        fieldMappings = null;
     }
 
-    // Searcher API
+    @Override
+    public String getId() {
+        return id;
+    }
 
     @Override
-    public QueryResultList<String> findEntities(FieldQuery query) throws IOException {
+    public Entity getEntity(String id) throws ReferencedSiteException {
+        checkEnabled();
+        String connectionId = connect();
+        try {
+            GetTopicRequestType topicRequest = new GetTopicRequestType();
+            topicRequest.setConnectionID(connectionId);
+            topicRequest.setGetMetaData(true);
+            topicRequest.setLight(false);
+            topicRequest.setPsi(id);
+            TopicType topic = itmPort.getTopic(topicRequest);
+            return topicToEntity(topic);
+        } finally {
+            logout(connectionId);
+        }
+    }
+
+    protected Entity topicToEntity(TopicType topic) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public QueryResultList<Representation> find(FieldQuery query) throws IOException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    // Dereferencer API
-
-    @Override
-    public String getAccessUri() {
-        // TODO Auto-generated method stub
+    public QueryResultList<Representation> find(FieldQuery query) throws ReferencedSiteException {
+        checkEnabled();
+        // TODO
         return null;
     }
 
     @Override
-    public boolean canDereference(String uri) {
+    public QueryResultList<Entity> findEntities(FieldQuery query) throws ReferencedSiteException {
+        checkEnabled();
         // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public QueryResultList<String> findReferences(FieldQuery query) throws ReferencedSiteException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public InputStream getContent(String id, String contentType) throws ReferencedSiteException {
+        try {
+            return new CoolUriDereferencer().dereference(id, contentType);
+        } catch (IOException e) {
+            throw new ReferencedSiteException(String.format(
+                "Could not fetch content for %s id with content type %s", id, contentType), e);
+        }
+    }
+
+    @Override
+    public FieldQueryFactory getQueryFactory() {
+        return DefaultQueryFactory.getInstance();
+    }
+
+    @Override
+    public SiteConfiguration getConfiguration() {
+        // TODO: the SiteConfiguration API is implementation specific. Is this really usefull?
+        return null;
+    }
+
+    @Override
+    public boolean supportsLocalMode() {
         return false;
     }
 
     @Override
-    public InputStream dereference(String uri, String contentType) throws IOException {
-        // TODO Auto-generated method stub
-        return null;
+    public boolean supportsSearch() {
+        return true;
     }
 
     @Override
-    public Representation dereference(String uri) throws IOException {
-        // TODO Auto-generated method stub
-        return null;
+    public FieldMapper getFieldMapper() {
+        return fieldMappings;
     }
 
+    protected void checkEnabled() throws ReferencedSiteException {
+        if (itmPort == null) {
+            throw new ReferencedSiteException("Mondeca ITM service endpoint is not configured"
+                                              + " on referenced site with id: " + id);
+        }
+    }
 }
