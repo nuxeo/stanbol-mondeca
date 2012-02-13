@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -15,13 +18,19 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.stanbol.entityhub.core.mapping.DefaultFieldMapperImpl;
 import org.apache.stanbol.entityhub.core.mapping.ValueConverterFactory;
+import org.apache.stanbol.entityhub.core.model.EntityImpl;
+import org.apache.stanbol.entityhub.core.model.InMemoryValueFactory;
 import org.apache.stanbol.entityhub.core.query.DefaultQueryFactory;
+import org.apache.stanbol.entityhub.core.query.QueryResultListImpl;
 import org.apache.stanbol.entityhub.servicesapi.mapping.FieldMapper;
 import org.apache.stanbol.entityhub.servicesapi.model.Entity;
 import org.apache.stanbol.entityhub.servicesapi.model.Representation;
+import org.apache.stanbol.entityhub.servicesapi.query.Constraint;
 import org.apache.stanbol.entityhub.servicesapi.query.FieldQuery;
 import org.apache.stanbol.entityhub.servicesapi.query.FieldQueryFactory;
 import org.apache.stanbol.entityhub.servicesapi.query.QueryResultList;
+import org.apache.stanbol.entityhub.servicesapi.query.TextConstraint;
+import org.apache.stanbol.entityhub.servicesapi.query.ValueConstraint;
 import org.apache.stanbol.entityhub.servicesapi.site.ReferencedSite;
 import org.apache.stanbol.entityhub.servicesapi.site.ReferencedSiteException;
 import org.apache.stanbol.entityhub.servicesapi.site.SiteConfiguration;
@@ -32,6 +41,9 @@ import org.nuxeo.stanbol.mondeca.impl.ConnectionResponseType;
 import org.nuxeo.stanbol.mondeca.impl.GetTopicRequestType;
 import org.nuxeo.stanbol.mondeca.impl.ITM;
 import org.nuxeo.stanbol.mondeca.impl.ITMService;
+import org.nuxeo.stanbol.mondeca.impl.NameType;
+import org.nuxeo.stanbol.mondeca.impl.QueryResultType;
+import org.nuxeo.stanbol.mondeca.impl.SearchByNameRequestType;
 import org.nuxeo.stanbol.mondeca.impl.TopicType;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
@@ -44,6 +56,10 @@ import org.osgi.service.component.ComponentContext;
 @Service
 @Properties(value = {@Property(name = SiteConfiguration.ID)})
 public class ITMEntitySource implements ReferencedSite {
+
+    public static final String RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+
+    public static final String RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label";
 
     public static QName SERVICE_NAME = new QName("http://itm.mondeca.com/schema", "ITMService");
 
@@ -171,23 +187,99 @@ public class ITMEntitySource implements ReferencedSite {
         }
     }
 
-    protected Entity topicToEntity(TopicType topic) {
-        // TODO Auto-generated method stub
-        return null;
+    protected Entity topicToEntity(TopicType topic) throws IllegalArgumentException, ReferencedSiteException {
+        return new EntityImpl(getId(), topicToRepresentation(topic), null);
+    }
+
+    protected Representation topicToRepresentation(TopicType topic) throws ReferencedSiteException {
+        InMemoryValueFactory factory = InMemoryValueFactory.getInstance();
+        Iterator<String> uriIterator = topic.getUri().iterator();
+        if (!uriIterator.hasNext()) {
+            throw new ReferencedSiteException(topic.getId() + " has no PSI");
+        }
+        Representation representation = factory.createRepresentation(uriIterator.next());
+        for (String typeUri : topic.getTypeUri()) {
+            representation.addReference(RDF_TYPE, typeUri);
+        }
+        for (NameType name : topic.getDataItems().getName()) {
+            representation.setNaturalText(RDFS_LABEL, name.getDisplayName());
+        }
+        return representation;
     }
 
     @Override
     public QueryResultList<Representation> find(FieldQuery query) throws ReferencedSiteException {
         checkEnabled();
-        // TODO
-        return null;
+        String connectionId = connect();
+        try {
+            List<Representation> representationList = new ArrayList<Representation>();
+            SearchByNameRequestType searchByNameRequest = new SearchByNameRequestType();
+            searchByNameRequest.setConnectionID(connectionId);
+            searchByNameRequest.setFullText(false);
+            searchByNameRequest.setGetMetaData(false);
+            searchByNameRequest.setLight(false);
+            searchByNameRequest.setIncludeReferentialTopics(false);
+            if (query.getLimit() != null) {
+                searchByNameRequest.setLength(query.getLimit());
+            }
+            searchByNameRequest.setOffSet(query.getOffset());
+
+            Constraint typeConstraint = query.getConstraint(RDF_TYPE);
+            if (typeConstraint instanceof ValueConstraint) {
+                searchByNameRequest.setClasspsi(((ValueConstraint) typeConstraint).getValue().toString());
+            }
+            Constraint nameConstraint = query.getConstraint(RDFS_LABEL);
+            if (nameConstraint instanceof TextConstraint) {
+                TextConstraint textNameConstraint = (TextConstraint) nameConstraint;
+                String keyword = textNameConstraint.getTexts().iterator().next();
+                switch (textNameConstraint.getPatternType()) {
+                    case none:
+                        searchByNameRequest.setSearchMode("exact");
+                        searchByNameRequest.setWord(keyword);
+                        break;
+                    case wildcard:
+                        if (keyword.endsWith("*")) {
+                            keyword = keyword.substring(0, keyword.length() - 1);
+                            if (keyword.startsWith("*")) {
+                                keyword = keyword.substring(1);
+                                searchByNameRequest.setSearchMode("full");
+                                searchByNameRequest.setWord(keyword);
+                            } else {
+                                searchByNameRequest.setSearchMode("begin");
+                                searchByNameRequest.setWord(keyword);
+                            }
+                        } else {
+                            searchByNameRequest.setSearchMode("exact");
+                            searchByNameRequest.setWord(keyword);
+                        }
+                        break;
+
+                    default:
+                        throw new ReferencedSiteException("Unsupported pattern type: regex");
+                }
+            }
+            QueryResultType results = itmPort.searchByName(searchByNameRequest);
+            List<TopicType> topics = results.getTopicMap().getTopics().getTopic();
+            for (TopicType topic : topics) {
+                if (!topic.getUri().isEmpty()) {
+                    representationList.add(topicToRepresentation(topic));
+                }
+            }
+            return new QueryResultListImpl<Representation>(query, representationList, Representation.class);
+        } finally {
+            logout(connectionId);
+        }
     }
 
     @Override
     public QueryResultList<Entity> findEntities(FieldQuery query) throws ReferencedSiteException {
         checkEnabled();
-        // TODO Auto-generated method stub
-        return null;
+        QueryResultList<Representation> representations = find(query);
+        List<Entity> entityList = new ArrayList<Entity>();
+        for (Representation representation : representations) {
+            entityList.add(new EntityImpl(getId(), representation, null));
+        }
+        return new QueryResultListImpl<Entity>(query, entityList, Entity.class);
     }
 
     @Override
