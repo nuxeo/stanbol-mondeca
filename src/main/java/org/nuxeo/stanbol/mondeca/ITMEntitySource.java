@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Properties;
@@ -94,7 +95,7 @@ public class ITMEntitySource implements ReferencedSite {
 
     /**
      * Load a required property value from OSGi context with fall-back on environment variable.
-     * 
+     *
      * @throws ConfigurationException
      *             if no configuration is found in either contexts.
      */
@@ -225,8 +226,10 @@ public class ITMEntitySource implements ReferencedSite {
             searchByNameRequest.setOffSet(query.getOffset());
 
             Constraint typeConstraint = query.getConstraint(RDF_TYPE);
+            String type = null;
             if (typeConstraint instanceof ValueConstraint) {
-                searchByNameRequest.setClasspsi(((ValueConstraint) typeConstraint).getValue().toString());
+                type = ((ValueConstraint) typeConstraint).getValue().toString();
+                searchByNameRequest.setClasspsi(type);
             }
             Constraint nameConstraint = query.getConstraint(RDFS_LABEL);
             if (nameConstraint instanceof TextConstraint) {
@@ -262,7 +265,12 @@ public class ITMEntitySource implements ReferencedSite {
             List<TopicType> topics = results.getTopicMap().getTopics().getTopic();
             for (TopicType topic : topics) {
                 if (!topic.getUri().isEmpty()) {
-                    representationList.add(topicToRepresentation(topic));
+                    Representation representation = topicToRepresentation(topic);
+                    if (type != null) {
+                        // add the type info as the Mondeca ITM topic info migh not include it.
+                        representation.setReference(RDF_TYPE, type);
+                    }
+                    representationList.add(representation);
                 }
             }
             return new QueryResultListImpl<Representation>(query, representationList, Representation.class);
@@ -284,8 +292,7 @@ public class ITMEntitySource implements ReferencedSite {
 
     @Override
     public QueryResultList<String> findReferences(FieldQuery query) throws ReferencedSiteException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new NotImplementedException();
     }
 
     @Override
@@ -305,8 +312,7 @@ public class ITMEntitySource implements ReferencedSite {
 
     @Override
     public SiteConfiguration getConfiguration() {
-        // TODO: the SiteConfiguration API is implementation specific. Is this really usefull?
-        return null;
+        throw new NotImplementedException();
     }
 
     @Override

@@ -125,5 +125,10 @@ public class ITMEntitySourceTest {
         assertEquals(null, name.getLanguage());
         assertFalse(names.hasNext());
 
+        Iterator<Reference> types = entity.getRepresentation().getReferences(ITMEntitySource.RDF_TYPE);
+        assertTrue(types.hasNext());
+        Reference firstType = types.next();
+        assertEquals("http://www.geonames.org/ontology#Feature", firstType.getReference());
+        assertFalse(types.hasNext());
     }
 }
