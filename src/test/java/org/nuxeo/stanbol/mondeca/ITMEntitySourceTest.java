@@ -9,6 +9,8 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.stanbol.entityhub.servicesapi.model.Entity;
 import org.apache.stanbol.entityhub.servicesapi.model.Reference;
 import org.apache.stanbol.entityhub.servicesapi.model.Text;
@@ -32,10 +34,16 @@ import org.osgi.service.cm.ConfigurationException;
  */
 public class ITMEntitySourceTest {
 
+    public static final Log log = LogFactory.getLog(ITMEntitySourceTest.class);
+
+    protected static final String WSDL_ENV_VAR = "STANBOL_MONDECA_ITM_SERVICE_WSDL_URL";
+
     ITMEntitySource source;
 
-    public boolean hasMondecaConfigEnv() {
-        return System.getenv("STANBOL_MONDECA_ITM_SERVICE_WSDL_URL") != null;
+    static boolean hasAlreadyWarned = false;
+
+    public boolean checkMondecaConfigEnvironment() {
+        return System.getenv(WSDL_ENV_VAR) != null;
     }
 
     public Dictionary<String,String> getTestConfig() {
@@ -46,7 +54,12 @@ public class ITMEntitySourceTest {
 
     @Before
     public void makeEntitySource() throws ConfigurationException {
-        if (!hasMondecaConfigEnv()) {
+        if (!checkMondecaConfigEnvironment()) {
+            if (!hasAlreadyWarned) {
+                log.warn(WSDL_ENV_VAR + " is not defined, skipping "
+                         + ITMEntitySourceTest.class.getSimpleName());
+                hasAlreadyWarned = true;
+            }
             return;
         }
         source = new ITMEntitySource();
@@ -55,12 +68,15 @@ public class ITMEntitySourceTest {
 
     @Test
     public void testConnect() throws ReferencedSiteException {
+        if (!checkMondecaConfigEnvironment()) {
+            return;
+        }
         source.logout(source.connect());
     }
 
     @Test
     public void testGetEntity() throws ReferencedSiteException {
-        if (!hasMondecaConfigEnv()) {
+        if (!checkMondecaConfigEnvironment()) {
             return;
         }
         Entity entity = source.getEntity("http://sws.geonames.org/146214/");
@@ -85,7 +101,7 @@ public class ITMEntitySourceTest {
 
     @Test
     public void testFindEntities() throws ReferencedSiteException {
-        if (!hasMondecaConfigEnv()) {
+        if (!checkMondecaConfigEnvironment()) {
             return;
         }
         FieldQueryFactory qf = source.getQueryFactory();
