@@ -267,7 +267,7 @@ public class ITMEntitySource implements ReferencedSite {
                 if (!topic.getUri().isEmpty()) {
                     Representation representation = topicToRepresentation(topic);
                     if (type != null) {
-                        // add the type info as the Mondeca ITM topic info migh not include it.
+                        // add the type info as the Mondeca ITM topic type info might not include it.
                         representation.setReference(RDF_TYPE, type);
                     }
                     representationList.add(representation);

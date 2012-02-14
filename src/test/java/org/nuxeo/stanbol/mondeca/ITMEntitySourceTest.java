@@ -130,5 +130,27 @@ public class ITMEntitySourceTest {
         Reference firstType = types.next();
         assertEquals("http://www.geonames.org/ontology#Feature", firstType.getReference());
         assertFalse(types.hasNext());
+
+        // test prefix search
+        query = qf.createFieldQuery();
+        query.setConstraint(ITMEntitySource.RDFS_LABEL, new TextConstraint("papho*",
+                TextConstraint.PatternType.wildcard, false));
+        entities = source.findEntities(query);
+        assertNotNull(entities);
+        assertEquals(2, entities.size());
+        Iterator<Entity> iterator = entities.iterator();
+        assertEquals("http://sws.geonames.org/146214/", iterator.next().getId());
+        assertEquals("http://sws.geonames.org/146213/", iterator.next().getId());
+
+        // test fulltext search
+        query = qf.createFieldQuery();
+        query.setConstraint(ITMEntitySource.RDFS_LABEL, new TextConstraint("*apho*",
+                TextConstraint.PatternType.wildcard, false));
+        entities = source.findEntities(query);
+        assertNotNull(entities);
+        assertEquals(2, entities.size());
+        iterator = entities.iterator();
+        assertEquals("http://sws.geonames.org/146214/", iterator.next().getId());
+        assertEquals("http://sws.geonames.org/146213/", iterator.next().getId());
     }
 }
