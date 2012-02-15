@@ -90,7 +90,7 @@ public class ITMEntitySourceTest {
         // assertEquals("TODO", firstType.getReference());
         // assertFalse(types.hasNext());
 
-        Iterator<Text> names = entity.getRepresentation().getText(ITMEntitySource.RDFS_LABEL);
+        Iterator<Text> names = entity.getRepresentation().getText(ITMEntitySource.NAME_URI);
         assertTrue(names.hasNext());
         Text name = names.next();
         assertEquals("Paphos", name.getText());
@@ -108,7 +108,7 @@ public class ITMEntitySourceTest {
         FieldQuery query = qf.createFieldQuery();
         query.setConstraint(ITMEntitySource.RDF_TYPE, new ValueConstraint(
                 "http://www.geonames.org/ontology#Feature"));
-        query.setConstraint(ITMEntitySource.RDFS_LABEL, new TextConstraint("Paphos",
+        query.setConstraint(ITMEntitySource.NAME_URI, new TextConstraint("Paphos",
                 TextConstraint.PatternType.none, false));
         QueryResultList<Entity> entities = source.findEntities(query);
         assertNotNull(entities);
@@ -117,7 +117,7 @@ public class ITMEntitySourceTest {
         assertNotNull(entity);
         assertEquals("test-mondeca-itm-source", entity.getSite());
         assertEquals("http://sws.geonames.org/146214/", entity.getId());
-        Iterator<Text> names = entity.getRepresentation().getText(ITMEntitySource.RDFS_LABEL);
+        Iterator<Text> names = entity.getRepresentation().getText(ITMEntitySource.NAME_URI);
         assertTrue(names.hasNext());
         Text name = names.next();
         assertEquals("Paphos", name.getText());
@@ -133,7 +133,7 @@ public class ITMEntitySourceTest {
 
         // test prefix search
         query = qf.createFieldQuery();
-        query.setConstraint(ITMEntitySource.RDFS_LABEL, new TextConstraint("papho*",
+        query.setConstraint(ITMEntitySource.NAME_URI, new TextConstraint("papho*",
                 TextConstraint.PatternType.wildcard, false));
         entities = source.findEntities(query);
         assertNotNull(entities);
@@ -144,7 +144,7 @@ public class ITMEntitySourceTest {
 
         // test fulltext search
         query = qf.createFieldQuery();
-        query.setConstraint(ITMEntitySource.RDFS_LABEL, new TextConstraint("*apho*",
+        query.setConstraint(ITMEntitySource.NAME_URI, new TextConstraint("*apho*",
                 TextConstraint.PatternType.wildcard, false));
         entities = source.findEntities(query);
         assertNotNull(entities);

@@ -36,13 +36,17 @@ import org.apache.stanbol.entityhub.servicesapi.site.ReferencedSite;
 import org.apache.stanbol.entityhub.servicesapi.site.ReferencedSiteException;
 import org.apache.stanbol.entityhub.servicesapi.site.SiteConfiguration;
 import org.apache.stanbol.entityhub.site.linkeddata.impl.CoolUriDereferencer;
+import org.nuxeo.stanbol.mondeca.impl.AssociationType;
 import org.nuxeo.stanbol.mondeca.impl.ConnectedRequestType;
 import org.nuxeo.stanbol.mondeca.impl.ConnectionRequestType;
 import org.nuxeo.stanbol.mondeca.impl.ConnectionResponseType;
 import org.nuxeo.stanbol.mondeca.impl.GetTopicRequestType;
 import org.nuxeo.stanbol.mondeca.impl.ITM;
 import org.nuxeo.stanbol.mondeca.impl.ITMService;
+import org.nuxeo.stanbol.mondeca.impl.LinkType;
 import org.nuxeo.stanbol.mondeca.impl.NameType;
+import org.nuxeo.stanbol.mondeca.impl.ObjectType.DataItems;
+import org.nuxeo.stanbol.mondeca.impl.PointerType;
 import org.nuxeo.stanbol.mondeca.impl.QueryResultType;
 import org.nuxeo.stanbol.mondeca.impl.SearchByNameRequestType;
 import org.nuxeo.stanbol.mondeca.impl.TopicType;
@@ -61,6 +65,8 @@ public class ITMEntitySource implements ReferencedSite {
     public static final String RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
     public static final String RDFS_LABEL = "http://www.w3.org/2000/01/rdf-schema#label";
+
+    public static final String NAME_URI = "http://www.mondeca.com/system/basicontology#Name";
 
     public static QName SERVICE_NAME = new QName("http://itm.mondeca.com/schema", "ITMService");
 
@@ -202,10 +208,59 @@ public class ITMEntitySource implements ReferencedSite {
         for (String typeUri : topic.getTypeUri()) {
             representation.addReference(RDF_TYPE, typeUri);
         }
-        for (NameType name : topic.getDataItems().getName()) {
-            representation.setNaturalText(RDFS_LABEL, name.getDisplayName());
+        // TODO: is the following really a good idea?
+        for (AssociationType association : topic.getAssociations().getAssociation()) {
+            collectLinks(representation, association.getDataItems());
+            collectPointers(representation, association.getDataItems());
+        }
+        collectNames(representation, topic.getDataItems());
+        collectLinks(representation, topic.getDataItems());
+        collectPointers(representation, topic.getDataItems());
+        if (fieldMappings != null && !fieldMappings.getMappings().isEmpty()) {
+            Representation mappedRepresentation = factory.createRepresentation(representation.getId());
+            fieldMappings.applyMappings(representation, mappedRepresentation, factory);
+            return mappedRepresentation;
         }
         return representation;
+    }
+
+    protected void collectNames(Representation representation, DataItems dataItems) {
+        if (dataItems == null || dataItems.getName() == null) {
+            return;
+        }
+        for (NameType name : dataItems.getName()) {
+            Iterator<String> typeIterator = name.getTypeUri().iterator();
+            if (typeIterator.hasNext()) {
+                representation.setNaturalText(typeIterator.next(), name.getDisplayName());
+            } else {
+                representation.setNaturalText(RDFS_LABEL, name.getDisplayName());
+            }
+        }
+    }
+
+    protected void collectLinks(Representation representation, DataItems dataItems) {
+        if (dataItems == null || dataItems.getLink() == null) {
+            return;
+        }
+        for (LinkType link : dataItems.getLink()) {
+            Iterator<String> typeIterator = link.getTypeUri().iterator();
+            if (typeIterator.hasNext()) {
+                representation.setReference(typeIterator.next(), link.getUrl());
+            }
+        }
+    }
+
+    protected void collectPointers(Representation representation, DataItems dataItems) {
+        if (dataItems == null || dataItems.getPointer() == null) {
+            return;
+        }
+        for (PointerType pointer : dataItems.getPointer()) {
+            Iterator<String> typeIterator = pointer.getTypeUri().iterator();
+            Iterator<String> topicIterator = pointer.getTopic().getUri().iterator();
+            if (typeIterator.hasNext() && topicIterator.hasNext()) {
+                representation.setReference(typeIterator.next(), topicIterator.next());
+            }
+        }
     }
 
     @Override
@@ -231,7 +286,7 @@ public class ITMEntitySource implements ReferencedSite {
                 type = ((ValueConstraint) typeConstraint).getValue().toString();
                 searchByNameRequest.setClasspsi(type);
             }
-            Constraint nameConstraint = query.getConstraint(RDFS_LABEL);
+            Constraint nameConstraint = query.getConstraint(NAME_URI);
             if (nameConstraint instanceof TextConstraint) {
                 TextConstraint textNameConstraint = (TextConstraint) nameConstraint;
                 String keyword = textNameConstraint.getTexts().iterator().next();
