@@ -202,7 +202,7 @@ public class ITMEntitySource implements ReferencedSite {
         InMemoryValueFactory factory = InMemoryValueFactory.getInstance();
         Iterator<String> uriIterator = topic.getUri().iterator();
         if (!uriIterator.hasNext()) {
-            throw new ReferencedSiteException(topic.getId() + " has no PSI");
+            throw new ReferencedSiteException(topic.getId() + " has no SPI");
         }
         Representation representation = factory.createRepresentation(uriIterator.next());
         for (String typeUri : topic.getTypeUri()) {
@@ -272,7 +272,7 @@ public class ITMEntitySource implements ReferencedSite {
             SearchByNameRequestType searchByNameRequest = new SearchByNameRequestType();
             searchByNameRequest.setConnectionID(connectionId);
             searchByNameRequest.setFullText(false);
-            searchByNameRequest.setGetMetaData(false);
+            searchByNameRequest.setGetMetaData(true);
             searchByNameRequest.setLight(false);
             searchByNameRequest.setIncludeReferentialTopics(false);
             if (query.getLimit() != null) {

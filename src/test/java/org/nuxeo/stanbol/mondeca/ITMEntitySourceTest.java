@@ -84,11 +84,9 @@ public class ITMEntitySourceTest {
         assertEquals("test-mondeca-itm-source", entity.getSite());
         assertEquals("http://sws.geonames.org/146214/", entity.getId());
         Iterator<Reference> types = entity.getRepresentation().getReferences(ITMEntitySource.RDF_TYPE);
-        // TODO: how to fetch a geonames feature type? (class PSI in Mondeca ITM parlance)
+        Reference firstType = types.next();
+        assertEquals("http://www.geonames.org/ontology#Feature", firstType.getReference());
         assertFalse(types.hasNext());
-        // Reference firstType = types.next();
-        // assertEquals("TODO", firstType.getReference());
-        // assertFalse(types.hasNext());
 
         Iterator<Text> names = entity.getRepresentation().getText(ITMEntitySource.NAME_URI);
         assertTrue(names.hasNext());
