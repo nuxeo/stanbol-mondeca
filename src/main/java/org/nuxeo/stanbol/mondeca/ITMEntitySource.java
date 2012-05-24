@@ -283,7 +283,8 @@ public class ITMEntitySource implements ReferencedSite {
             Constraint typeConstraint = query.getConstraint(RDF_TYPE);
             String type = null;
             if (typeConstraint instanceof ValueConstraint) {
-                type = ((ValueConstraint) typeConstraint).getValue().toString();
+                // TODO: how to handle multi-valued constraints?
+                type = ((ValueConstraint) typeConstraint).getValues().iterator().next().toString();
                 searchByNameRequest.setClasspsi(type);
             }
             Constraint nameConstraint = query.getConstraint(NAME_URI);
