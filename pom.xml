@@ -16,9 +16,6 @@
   <version>0.1.0-SNAPSHOT</version>
   <name>Apache Stanbol connector to Mondeca ITM and CA Manager</name>
   <packaging>bundle</packaging>
-  <properties>
-    <stanbol.version>0.10.0-incubating-SNAPSHOT</stanbol.version>
-  </properties>
   <scm>
     <url>http://github.com/nuxeo/stanbol-mondeca/</url>
   </scm>
@@ -184,22 +181,22 @@
     <dependency>
       <groupId>org.apache.stanbol</groupId>
       <artifactId>org.apache.stanbol.entityhub.servicesapi</artifactId>
-      <version>${stanbol.version}</version>
+      <version>0.11.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.stanbol</groupId>
       <artifactId>org.apache.stanbol.entityhub.core</artifactId>
-      <version>${stanbol.version}</version>
+      <version>0.11.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.stanbol</groupId>
       <artifactId>org.apache.stanbol.entityhub.site.linkeddata</artifactId>
-      <version>${stanbol.version}</version>
+      <version>0.11.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.stanbol</groupId>
       <artifactId>org.apache.stanbol.enhancer.servicesapi</artifactId>
-      <version>${stanbol.version}</version>
+      <version>0.10.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.clerezza</groupId>
