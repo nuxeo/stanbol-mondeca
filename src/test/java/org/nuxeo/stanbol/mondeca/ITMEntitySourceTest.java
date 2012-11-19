@@ -19,7 +19,7 @@ import org.apache.stanbol.entityhub.servicesapi.query.FieldQueryFactory;
 import org.apache.stanbol.entityhub.servicesapi.query.QueryResultList;
 import org.apache.stanbol.entityhub.servicesapi.query.TextConstraint;
 import org.apache.stanbol.entityhub.servicesapi.query.ValueConstraint;
-import org.apache.stanbol.entityhub.servicesapi.site.ReferencedSiteException;
+import org.apache.stanbol.entityhub.servicesapi.site.SiteException;
 import org.apache.stanbol.entityhub.servicesapi.site.SiteConfiguration;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,7 +67,7 @@ public class ITMEntitySourceTest {
     }
 
     @Test
-    public void testConnect() throws ReferencedSiteException {
+    public void testConnect() throws SiteException {
         if (!checkMondecaConfigEnvironment()) {
             return;
         }
@@ -75,7 +75,7 @@ public class ITMEntitySourceTest {
     }
 
     @Test
-    public void testGetEntity() throws ReferencedSiteException {
+    public void testGetEntity() throws SiteException {
         if (!checkMondecaConfigEnvironment()) {
             return;
         }
@@ -98,7 +98,7 @@ public class ITMEntitySourceTest {
     }
 
     @Test
-    public void testFindEntities() throws ReferencedSiteException {
+    public void testFindEntities() throws SiteException {
         if (!checkMondecaConfigEnvironment()) {
             return;
         }

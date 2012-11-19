@@ -32,8 +32,8 @@ import org.apache.stanbol.entityhub.servicesapi.query.FieldQueryFactory;
 import org.apache.stanbol.entityhub.servicesapi.query.QueryResultList;
 import org.apache.stanbol.entityhub.servicesapi.query.TextConstraint;
 import org.apache.stanbol.entityhub.servicesapi.query.ValueConstraint;
-import org.apache.stanbol.entityhub.servicesapi.site.ReferencedSite;
-import org.apache.stanbol.entityhub.servicesapi.site.ReferencedSiteException;
+import org.apache.stanbol.entityhub.servicesapi.site.Site;
+import org.apache.stanbol.entityhub.servicesapi.site.SiteException;
 import org.apache.stanbol.entityhub.servicesapi.site.SiteConfiguration;
 import org.apache.stanbol.entityhub.site.linkeddata.impl.CoolUriDereferencer;
 import org.nuxeo.stanbol.mondeca.impl.AssociationType;
@@ -60,7 +60,7 @@ import org.osgi.service.component.ComponentContext;
 @Component(configurationFactory = true, policy = ConfigurationPolicy.REQUIRE, specVersion = "1.1")
 @Service
 @Properties(value = {@Property(name = SiteConfiguration.ID)})
-public class ITMEntitySource implements ReferencedSite {
+public class ITMEntitySource implements Site {
 
     public static final String RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
@@ -142,7 +142,7 @@ public class ITMEntitySource implements ReferencedSite {
         fieldMappings = new DefaultFieldMapperImpl(ValueConverterFactory.getDefaultInstance());
     }
 
-    public void activate(ComponentContext ce) throws ConfigurationException, ReferencedSiteException {
+    public void activate(ComponentContext ce) throws ConfigurationException, SiteException {
         @SuppressWarnings("unchecked")
         Dictionary<String,String> properties = ce.getProperties();
         configure(properties);
@@ -150,10 +150,10 @@ public class ITMEntitySource implements ReferencedSite {
         logout(connect());
     }
 
-    protected String connect() throws ReferencedSiteException {
+    protected String connect() throws SiteException {
         ConnectionResponseType connection = itmPort.connection(connectionParams);
         if (!connection.isSuccessfull()) {
-            throw new ReferencedSiteException(connection.getMessage());
+            throw new SiteException(connection.getMessage());
         }
         return connection.getIdentifier();
     }
@@ -178,7 +178,7 @@ public class ITMEntitySource implements ReferencedSite {
     }
 
     @Override
-    public Entity getEntity(String id) throws ReferencedSiteException {
+    public Entity getEntity(String id) throws SiteException {
         checkEnabled();
         String connectionId = connect();
         try {
@@ -194,15 +194,15 @@ public class ITMEntitySource implements ReferencedSite {
         }
     }
 
-    protected Entity topicToEntity(TopicType topic) throws IllegalArgumentException, ReferencedSiteException {
+    protected Entity topicToEntity(TopicType topic) throws IllegalArgumentException, SiteException {
         return new EntityImpl(getId(), topicToRepresentation(topic), null);
     }
 
-    protected Representation topicToRepresentation(TopicType topic) throws ReferencedSiteException {
+    protected Representation topicToRepresentation(TopicType topic) throws SiteException {
         InMemoryValueFactory factory = InMemoryValueFactory.getInstance();
         Iterator<String> uriIterator = topic.getUri().iterator();
         if (!uriIterator.hasNext()) {
-            throw new ReferencedSiteException(topic.getId() + " has no SPI");
+            throw new SiteException(topic.getId() + " has no SPI");
         }
         Representation representation = factory.createRepresentation(uriIterator.next());
         for (String typeUri : topic.getTypeUri()) {
@@ -264,7 +264,7 @@ public class ITMEntitySource implements ReferencedSite {
     }
 
     @Override
-    public QueryResultList<Representation> find(FieldQuery query) throws ReferencedSiteException {
+    public QueryResultList<Representation> find(FieldQuery query) throws SiteException {
         checkEnabled();
         String connectionId = connect();
         try {
@@ -314,7 +314,7 @@ public class ITMEntitySource implements ReferencedSite {
                         break;
 
                     default:
-                        throw new ReferencedSiteException("Unsupported pattern type: regex");
+                        throw new SiteException("Unsupported pattern type: regex");
                 }
             }
             QueryResultType results = itmPort.searchByName(searchByNameRequest);
@@ -336,7 +336,7 @@ public class ITMEntitySource implements ReferencedSite {
     }
 
     @Override
-    public QueryResultList<Entity> findEntities(FieldQuery query) throws ReferencedSiteException {
+    public QueryResultList<Entity> findEntities(FieldQuery query) throws SiteException {
         checkEnabled();
         QueryResultList<Representation> representations = find(query);
         List<Entity> entityList = new ArrayList<Entity>();
@@ -347,16 +347,16 @@ public class ITMEntitySource implements ReferencedSite {
     }
 
     @Override
-    public QueryResultList<String> findReferences(FieldQuery query) throws ReferencedSiteException {
+    public QueryResultList<String> findReferences(FieldQuery query) throws SiteException {
         throw new NotImplementedException();
     }
 
     @Override
-    public InputStream getContent(String id, String contentType) throws ReferencedSiteException {
+    public InputStream getContent(String id, String contentType) throws SiteException {
         try {
             return new CoolUriDereferencer().dereference(id, contentType);
         } catch (IOException e) {
-            throw new ReferencedSiteException(String.format(
+            throw new SiteException(String.format(
                 "Could not fetch content for %s id with content type %s", id, contentType), e);
         }
     }
@@ -386,9 +386,9 @@ public class ITMEntitySource implements ReferencedSite {
         return fieldMappings;
     }
 
-    protected void checkEnabled() throws ReferencedSiteException {
+    protected void checkEnabled() throws SiteException {
         if (itmPort == null) {
-            throw new ReferencedSiteException("Mondeca ITM service endpoint is not configured"
+            throw new SiteException("Mondeca ITM service endpoint is not configured"
                                               + " on referenced site with id: " + id);
         }
     }
